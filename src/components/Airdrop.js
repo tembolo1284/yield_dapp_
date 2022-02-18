@@ -27,6 +27,7 @@ class Airdrop extends Component {
         // 2. stop counting when we hit zero
         if(seconds == 0) {
             clearInterval(this.timer)
+            //this.issueRewards
         }
     }
 

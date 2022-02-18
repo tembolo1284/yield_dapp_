@@ -67,7 +67,7 @@ function depositTokens(uint _amount) public {
             // issue tokens to all stakers
             for (uint i=0; i<stakers.length; i++) {
                 address recipient = stakers[i]; 
-                uint balance = stakingBalance[recipient] / 5;
+                uint balance = stakingBalance[recipient] / 5; //give back balance/5 reward tokens as incentive to deposit with us!
                 if(balance > 0) {
                 rwd.transfer(recipient, balance);
             }
