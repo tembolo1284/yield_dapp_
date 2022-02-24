@@ -87,6 +87,16 @@ class App extends Component {
       this.setState({loading:false})
     }) 
   }
+
+  //issue reward token call just added 20220217
+  issueTokens = () => {
+    this.setState({loading: true })
+    this.state.decentralBank.methods.issueTokens().send({from: this.state.account}).on('transactionHash', (hash) => {
+      this.setState({loading:false})
+    }) 
+  }
+
+
  
 
   constructor(props) {

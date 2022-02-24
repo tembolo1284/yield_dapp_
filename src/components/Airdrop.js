@@ -1,4 +1,8 @@
 import React, {Component} from 'react'
+//import issueTokens from '../../scripts/issue-tokens.js';
+//import DecentralBank from '../truffle_abis/DecentralBank.json'
+
+
 
 class Airdrop extends Component {
 
@@ -27,7 +31,8 @@ class Airdrop extends Component {
         // 2. stop counting when we hit zero
         if(seconds == 0) {
             clearInterval(this.timer)
-            //this.issueRewards
+            //issueTokens()
+            
         }
     }
 
@@ -59,9 +64,13 @@ class Airdrop extends Component {
         if(stakingB >= '50000000000000000000') {
             this.startTimer()
         }
+    //issue reward token call just added 20220217
+    //issueTokens = () => {
+    //    this.setState({loading: true })
+     //   this.state.decentralBank.methods.issueTokens().send({from: this.state.account}).on('transactionHash', (hash) => {
+      //  this.setState({loading:false})
+    //}) 
     }
-
-
 
     render() {
         this.airdropReleaseTokens()
