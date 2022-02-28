@@ -21,7 +21,7 @@ constructor(RWD _rwd, Tether _tether) public {
     owner = msg.sender;
 }
 
-  // staking function   
+  // staking or deposit function   
 function depositTokens(uint _amount) public {
 
   // require staking amount to be greater than zero
@@ -42,7 +42,7 @@ function depositTokens(uint _amount) public {
     hasStaked[msg.sender] = true;
 }
 
-  // unstake tokens
+  // unstake or withdraw tokens function
   function unstakeTokens() public {
     uint balance = stakingBalance[msg.sender];
     // require the amount to be greater than zero
