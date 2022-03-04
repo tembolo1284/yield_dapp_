@@ -19,18 +19,6 @@ to make the owner equal to msg.sender.
 
 Please see videos showing a demo of a Deposit, an issuance of reward tokens, and a withdrawal.
 
-The second and more important part of the project is the Loan business part of the DeFi bank.
-
-
-
-## Technologies and Installation Guide
-
-For the yield staking part of the project you must do the following:
-
-We have python version 3.7.10 and git version 2.33.0.windows.2 installed on a laptop running windows 10 pro. We also have MetaMask and Ganache installed.
-
-Install node.js to be able to run javascript from the command line. Run 'node -v' after install to ensure you get a version number. Install truffle suite to be able to compile and migrate contracts to the blockchain using one of the address you get when launching Ganache. You can run 'npm install -g truffle' (the g here is global so it hits all your environments).
-
 Now for the loans part of the project!
 
 -------------------------------
@@ -103,8 +91,20 @@ And people subscribed to the contract will be (for example) able to see the foll
 
 ![image](https://user-images.githubusercontent.com/90321433/156671660-72801d7b-ec10-499d-8a5b-f51e673e7f81.png)
 
+-----------------------------------------------------
+
+
+## Technologies and Installation Guide
+
+For the yield staking part of the project you must do the following:
+
+We have python version 3.7.10 and git version 2.33.0.windows.2 installed on a laptop running windows 10 pro. We also have MetaMask and Ganache installed.
+
+Install node.js to be able to run javascript from the command line. Run 'node -v' after install to ensure you get a version number. Install truffle suite to be able to compile and migrate contracts to the blockchain using one of the address you get when launching Ganache. You can run 'npm install -g truffle' (the g here is global so it hits all your environments).
+
+
  
----
+------
 
 ## Usage
 
@@ -116,13 +116,13 @@ III) Launch the webpage that runs the front-end by running 'npm start'
 IV) Deposit some money and enjoy getting rich!
 
 
----
+------
 
 ## Contributors
 Paul Lopez, Chaim Kriger, Austin Do, Isaac Iskra, Albert Peyton
 
 
----
+------
 
 ## License
 No licenses required. Just install everything for free, pull from the repository, and enjoy!
