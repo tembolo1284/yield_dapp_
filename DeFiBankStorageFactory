@@ -1,0 +1,28 @@
+//SPDX-License-Identifier: MIT
+
+pragma solidity ^0.6.0;  //This is the pragma that is being run for LoanModel
+//pragma solidity ^0.5.0;
+
+    // Import contract(s)
+import "./DeFiBankAccountModel.sol"; 
+
+
+//Contract with inheritance from SimpleStorage.
+contract StorageFactory is AccountModel {
+
+    AccountModel[] public accountModelArray;
+
+    function createLoanModelContract() public {
+        AccountModel accountModel = new AccountModel();
+        accountModelArray.push(accountModel);
+    }
+    //uint256 _loanModelNumber
+    function sfStore(uint256 _accountModelIndex) public {
+        // Need two things to interact with the contract, address and ABI (Application Binary Interface) 
+        AccountModel(address(accountModelArray[_accountModelIndex])).store();
+    }
+
+    function sfGet(uint256 _accountModelIndex) public view returns (uint256) {
+        return AccountModel(address(accountModelArray[_accountModelIndex])).retrieve();
+    }
+}

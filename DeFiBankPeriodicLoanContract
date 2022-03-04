@@ -1,0 +1,200 @@
+//SPDX-License-Identifier: MIT
+
+pragma solidity ^0.5.0;
+
+// This is a crowdsale contract that will eventually become a periodic contract.  The reason why we are going with crowdsale is because as a Decentralized bank, we give out loans through the issuing of the TetherStableCoin through a process of minting and loaning the coin out.  
+// In future iterations of this contract, we will also include parameters such as interest rate, payment period, collateral, and consequence if payment is missed.
+// Because of inheritance, make sure to Deploy the "TetherStablecoin - contracts/TetherStableCoin.sol" file.
+import "./TetherStableCoin.sol";
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v2.5.0/contracts/crowdsale/Crowdsale.sol";
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v2.5.0/contracts/crowdsale/emission/MintedCrowdsale.sol";
+
+// Have the TetherStableCoinCrowdsale contract inherit the following OpenZeppelin:
+// * Crowdsale
+// * MintedCrowdsale
+contract TetherCoinCrowdsale is Crowdsale, MintedCrowdsale { // UPDATE THE CONTRACT SIGNATURE TO ADD INHERITANCE
+    
+    // Provide parameters for all of the features of your crowdsale, such as the `rate`, `wallet` for fundraising, and `token`.
+    constructor(uint256 rate, address payable wallet, TetherStableCoin token) public Crowdsale(rate, wallet, token) {
+        // constructor can stay empty
+    }
+}
+
+contract TetherCoinCrowdsaleDeployer {
+    // Create an 'address public' variable called 'tether_token_address'.*/
+    address public tether_token_address;
+    //Create an 'address public' variable called 'tether_crowdsale_address'.*/
+    address public tether_crowdsale_address;
+
+
+    // Add the constructor.*/
+    constructor(
+        /*uint256 rate, // rate in TKNbits*/
+        string memory name,
+        string memory symbol,
+        address payable wallet // sale beneficiary
+        /*TetherStableCoin token // the TetherStableCoin itself that the TetherCoinCrowdsale will work with*/
+        /*uint goal, // the crowdsale goal
+        uint open, // the crowdsale opening time
+        uint close // the crowdsale closing time*/
+    ) public {
+        /*Crowdsale(rate, wallet, token);
+        CappedCrowdsale(goal);
+        TimedCrowdsale(open, close);
+        RefundableCrowdsale(goal);
+        // Create a new instance of the TetherStableCoin contract.*/
+         TetherStableCoin token = new TetherStableCoin (
+            name, 
+            symbol
+        );
+        
+        // Assign the token contract’s address to the `tether_token_address` variable.
+        tether_token_address = address(token);
+
+        // Create a new instance of the `TetherStableCoinCrowdsale` contract
+        TetherCoinCrowdsale tether_crowdsale = new TetherCoinCrowdsale (
+            1,
+            wallet,
+            token
+        );
+            
+        // Aassign the `TetherCoinCrowdsale` contract’s address to the `tether_crowdsale_address` variable.
+        tether_crowdsale_address = address(tether_crowdsale);
+
+        // Set the `TetherCoinCrowdsale` contract as a minter
+        token.addMinter(tether_crowdsale_address);
+
+        
+        // Have the `TetherCoinCrowdsaleDeployer` renounce its minter role.
+        token.renounceMinter();
+
+    }
+
+    /*    Here is the code that we would work with on next steps to make this contract a periodic loan.  At the moment, I don't have enough skill in solidity to make this work and debug it, but here's what the outline of the code would be:
+
+pragma solidity ^0.4.23;
+
+    import "./TetherStableCoin.sol";
+    struct Rational {
+        uint256 numerator;
+        uint256 denominator;
+    }
+
+    address lender;
+    address borrower;
+
+    Rational public interestRate;
+
+    uint256 public dueDate;
+    uint256 paymentPeriod;
+
+    uint256 public remainingBalance;
+    uint256 minimumPayment;
+
+    TetherStableCoin token;
+    uint256 collateralPerPayment;
+
+    constructor(
+        address _lender,
+        address _borrower,
+        uint256 interestRateNumerator,
+        uint256 interestRateDenominator,
+        uint256 _paymentPeriod,
+        uint256 _minimumPayment,
+        uint256 principal,
+        TetherStableCoin _token,
+        uint256 units
+    )
+        public
+    {
+        lender = _lender;
+        borrower = _borrower;
+        interestRate = Rational(interestRateNumerator, interestRateDenominator);
+        paymentPeriod = _paymentPeriod;
+        minimumPayment = _minimumPayment;
+        remainingBalance = principal;
+        token = _token;
+        collateralPerPayment = units;
+
+        uint256 x = minimumPayment * collateralPerPayment;
+        require(x / collateralPerPayment == minimumPayment,
+            "minimumPayment * collateralPerPayment overflows");
+
+        dueDate = now + paymentPeriod;
+    }
+
+    function multiply(uint256 x, Rational r) internal pure returns (uint256) {
+        return x * r.numerator / r.denominator;
+    }
+
+    function calculateComponents(uint256 amount)
+        internal
+        view
+        returns (uint256 interest, uint256 principal)
+    {
+        interest = multiply(remainingBalance, interestRate);
+        require(amount >= interest);
+        principal = amount - interest;
+        return (interest, principal);
+    }
+
+    function calculateCollateral(uint256 payment)
+        internal
+        view
+        returns (uint256 units)
+    {
+        uint256 product = collateralPerPayment * payment;
+        require(product / collateralPerPayment == payment, "payment causes overflow");
+        units = product / minimumPayment;
+        return units;
+    }
+
+    function processPeriod(uint256 interest, uint256 principal, address recipient) internal {
+        uint256 units = calculateCollateral(interest+principal);
+
+        remainingBalance -= principal;
+
+        dueDate += paymentPeriod;
+
+        require(token.transfer(recipient, units));
+    }
+
+    function makePayment() public payable {
+        require(now <= dueDate);
+
+        uint256 interest;
+        uint256 principal;
+        (interest, principal) = calculateComponents(msg.value);
+
+        require(principal <= remainingBalance);
+        require(msg.value >= minimumPayment || principal == remainingBalance);
+
+        processPeriod(interest, principal, borrower);
+    }
+
+    function withdraw() public {
+        lender.transfer(address(this).balance);
+    }
+
+    function missedPayment() public {
+        require(now > dueDate);
+
+        uint256 interest;
+        uint256 principal;
+        (interest, principal) = calculateComponents(minimumPayment);
+
+        if (principal > remainingBalance) {
+            principal = remainingBalance;
+        }
+
+        processPeriod(interest, principal, lender);
+    }
+
+    function returnCollateral() public {
+        require(remainingBalance == 0);
+
+        uint256 amount = token.balanceOf(this);
+        require(token.transfer(borrower, amount));
+    }
+    */
+}

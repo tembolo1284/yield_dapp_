@@ -1,0 +1,52 @@
+//SPDX-License-Identifier: MIT
+
+/*The legality of a solidity contract is cemented if you're using 
+trusted source code, so if you aren't then the code can be seen 
+as unreliable.*/
+
+/*
+This contract serves as  a basic contract for those wishing to 
+conduct business with the bank.  Because there is a lot of contracts
+
+*/
+
+pragma solidity ^0.6.0;
+
+contract AccountModel {
+
+// the accountNumber will get initialized to 0!
+    uint256 public accountNumber;
+    bool favoriteBool;
+
+    struct People {
+        uint256 accountNumber;
+        string name;
+    }
+
+//this is a dynamic array because it can change its size.
+    People[] public people;
+//mapping of data structure.
+    mapping(string => uint256) public nameToAccountNumber;
+
+    function store() public {
+        accountNumber += 1;
+    }
+
+//view, or pure, are view functions, meaning they're things we can view 
+//on the blockchain.
+//Public Vairiables automatically are also "view" settings.
+    function retrieve() public view returns(uint256) {
+        return accountNumber;
+    }
+
+/*there are two ways to store memory.  One is in the memory parameter, and 
+the other is in the storage parameter.  These will only be stored during 
+execxution of the execution or contract call, meaning the data will persist 
+after the contract is executed.*/
+    function addPerson(string memory _name, uint256 _accountNumber) public {
+        people.push(People({accountNumber: _accountNumber, name: _name}));
+        nameToAccountNumber[_name] = _accountNumber;
+        store();
+    }
+
+}

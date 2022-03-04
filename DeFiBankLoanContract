@@ -1,0 +1,76 @@
+//SPDX-License-Identifier: MIT
+
+pragma solidity ^0.5.0;
+
+// This contract works like a standard contarct that loans out money.
+// We will be looking at converting Etherium to a US Dollar.  Our progect token is a Tether stable coin, which equals 1 USD.
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v2.5.0/contracts/math/SafeMath.sol";
+
+contract FundLoanModel_2 {
+
+    //use openzepplin for SafeMath:
+    using SafeMath for uint256;
+
+    // The below code works with time such as you can only call this function/contract after a certain time.  Let's start with "only while open".  Keep in mind that time in solidity is expressed in seconds, and so you should use the EpochConverter to get the proper time stamp.//*
+      uint256 openingTime = 1544669573;
+
+    modifier onlyWhileOpen() {
+        require(block.timestamp >= openingTime);
+        _;
+    }
+
+    
+    mapping(address => uint256) public addressToAmountLoaned;
+    address[] public banks;
+    address public owner;
+
+      constructor() public {
+        owner = msg.sender;
+    }
+
+/*Events inside solidity, essentially events are for external cosumers
+to listen for things to happen on a smart contract, so they can 
+subscribe for things to happen on a smart contract and wait for 
+things to happen.
+Again you can subscribe to the specific address.
+
+    event Purchase(
+        address indexed _buyer,
+        uint256 _amount
+    );
+*/
+
+    function fund() public payable {
+        addressToAmountLoaned[msg.sender] += msg.value;
+    }
+
+/* The current balance of Gwei to 1 USD on 3/1/2022 is marked 
+by this ratio 0.00000235 : $1. What would originally be happening
+is I would import a link from Chainlink with the address to the up to date
+value of Gwei to use for this code, and then convert the Gwei 
+to USD, however I am not skilled enough to import in the link without 
+a number of errors arising.  So I'm going to hard code in the current 
+amount for USD, which is 1, and convert Tether to USD.
+
+For this project, we're looking at Tether as being the equivalent of USD.
+*/
+    
+    uint Usd = 1;
+    uint public tetherStableCoin = Usd;
+
+    modifier onlyOwner {
+        require(msg.sender == owner);
+        _;
+    }
+
+    function withdraw() payable onlyOwner public {
+
+     msg.sender.transfer(address(this).balance);
+
+        for (uint256 bankIndex=0; bankIndex < banks.length; bankIndex++){
+            address bank = banks[bankIndex];
+            addressToAmountLoaned[bank] = 0;
+        }
+        banks = new address[](0);
+    }
+}
